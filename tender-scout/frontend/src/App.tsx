@@ -16,6 +16,7 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<string[]>([]);
   const [selectedTenderForEvidence, setSelectedTenderForEvidence] = useState<Tender | null>(null);
+  const [searchId, setSearchId] = useState(0);
 
   // Filter & Sorting states
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -52,6 +53,8 @@ export const App: React.FC = () => {
   const executeSearch = async (queryStr: string, filters: any = {}) => {
     setIsLoading(true);
     setError(null);
+    setResponse(null);
+    setSearchId(prev => prev + 1);
     saveToHistory(queryStr);
 
     try {
@@ -142,9 +145,14 @@ export const App: React.FC = () => {
             onClear={handleClearHistory}
           />
 
-          {/* Telemetry and Results */}
-          {response && (
-            <SourceTelemetry sources={response.sources_searched} cached={response.cached} />
+          {/* Telemetry — shown during loading AND after results */}
+          {(isLoading || response) && (
+            <SourceTelemetry
+              sources={response?.sources_searched || []}
+              cached={response?.cached}
+              isLoading={isLoading}
+              searchId={searchId}
+            />
           )}
 
           {/* Error Banner */}
